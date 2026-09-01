@@ -56,6 +56,7 @@ cp .env.example .env   # then fill in DISCORD_TOKEN and CHANNEL_ID
 ```sh
 python3 main.py                    # full scrape
 python3 main.py --max-batches 3    # quick test run (3 batches of 50)
+python3 main.py --batch-size 25    # gentler on the API (1-100; default 50)
 ```
 
 Safe to interrupt (Ctrl-C) and re-run at any time:
@@ -64,18 +65,23 @@ Safe to interrupt (Ctrl-C) and re-run at any time:
 - resume point (`oldest_id`) persisted in a `meta` table
 - newest-first "catch-up" pass grabs messages newer than the DB, then a
   "backfill" pass continues older history from the resume point
-- 50 messages per request, ~0.8s between requests; honors `retry_after` on HTTP 429
+- 50 messages per request by default — tune with `--batch-size` or `BATCH_SIZE`
+  in `.env` (1–100; Discord's hard max is 100, default 50 keeps you
+  conservative), ~0.8s between requests; honors `retry_after` on HTTP 429
 
 Live progress per batch shows cumulative count, elapsed time, current rate,
 and DB size:
 
 ```
-  backfill: 100 fetched, oldest now 15417... | 2s elapsed | 57.6 msg/s | db: 1,300
+  backfill: 100 fetched, oldest now 15417... | 2s elapsed | 57.6 msg/s | db: 1,300 | ███████░░░░░░░░░░░░░░░░░ ~32% span
 ```
 
-There is deliberately no "% complete / ETA": Discord's API does not expose a
-channel's total message count, so the only honest progress signal is how much
-has been scraped so far.
+There is deliberately no message-count "% complete / ETA": Discord's API does
+not expose a channel's total message count. The backfill bar instead shows how
+much of the channel's **time span** your history covers, from channel creation
+(decoded from the channel-id snowflake) to the newest message. It is only a
+rough proxy for message progress — quiet months move the bar quickly, busy
+months slowly — and it hovers below 100% until the first message is reached.
 
 ## Schema
 

@@ -11,14 +11,14 @@ import urllib.request
 from scraper.config import API_BASE, BATCH_SIZE, USER_AGENT
 
 
-def fetch_messages(token: str, channel_id: str, before: str | None) -> list[dict]:
+def fetch_messages(token: str, channel_id: str, before: str | None, limit: int = BATCH_SIZE) -> list[dict]:
     """Fetch one batch of messages, newest-first. Empty list = end of history.
 
     `before` is an exclusive upper bound on message snowflake; pagination walks
     history by feeding back the oldest id of each batch. Retries transparently
     on HTTP 429 using the server's retry_after.
     """
-    params = {"limit": str(BATCH_SIZE)}
+    params = {"limit": str(limit)}
     if before:
         params["before"] = before
     url = f"{API_BASE}/channels/{channel_id}/messages?{urllib.parse.urlencode(params)}"
