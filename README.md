@@ -84,6 +84,23 @@ much of the channel's **time span** your history covers, from channel creation
 rough proxy for message progress — quiet months move the bar quickly, busy
 months slowly — and it hovers below 100% until the first message is reached.
 
+## Importing Discord's official data export (no token needed)
+
+If you'd rather not use a user token at all, request your official export
+(Settings → Privacy & Safety → Request Data) and import it instead. It fills
+the same schema, so `analysis.py` / `python3 -m analysis` work on it
+unchanged:
+
+```sh
+python3 import_export.py path/to/package.zip
+python3 import_export.py path/to/package.zip --channel-id 1530059933419045137 --channel-id 1390783530807591105
+```
+
+Each channel lands in its own `output/<channel_id>.db`, same as
+`main.py --channel-id <id>`. Caveat: the export's `messages.csv` usually has
+no per-message author column — for a 1:1 DM the other participant is taken
+from `channel.json`, otherwise `author_id` is left as `"unknown"`.
+
 ## Schema
 
 ```sql
