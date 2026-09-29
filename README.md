@@ -56,6 +56,7 @@ cp .env.example .env   # then fill in DISCORD_TOKEN and CHANNEL_ID
 ```sh
 python3 main.py                    # full scrape
 python3 main.py --max-batches 3    # quick test run (3 batches of 50)
+python3 main.py --channel-id 1530059933419045137   # own DB: output/<id>.db
 python3 main.py --batch-size 25    # gentler on the API (1-100; default 50)
 ```
 

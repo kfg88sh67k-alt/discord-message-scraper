@@ -40,9 +40,9 @@ VALUES
 """
 
 
-def open_db() -> sqlite3.Connection:
+def open_db(path=DB_PATH) -> sqlite3.Connection:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(path)
     conn.executescript(SCHEMA)
     _migrate(conn)
     conn.executescript(INDEXES)

@@ -41,10 +41,10 @@ def normalize_batch_size(value) -> int:
     return n
 
 
-def load_config() -> Config:
+def load_config(channel_id: str | None = None) -> Config:
     env = _load_env_file()
     token = env.get("DISCORD_TOKEN")
-    channel_id = env.get("CHANNEL_ID")
+    channel_id = channel_id or env.get("CHANNEL_ID")
     if not token or not channel_id:
         raise SystemExit(
             "Missing DISCORD_TOKEN or CHANNEL_ID. Copy .env.example to .env and fill them in."

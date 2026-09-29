@@ -31,6 +31,7 @@ from scraper.config import (
     load_config,
     normalize_batch_size,
 )
+from scraper.config import DB_PATH, OUTPUT_DIR
 from scraper.database import get_meta, insert_batch, open_db, set_meta, stats
 
 DISCORD_EPOCH_MS = 1420070400000
@@ -158,15 +159,21 @@ def main() -> None:
         default=None,
         help="messages per request, 1-100 (default: BATCH_SIZE in .env, else 50)",
     )
+    parser.add_argument(
+        "--channel-id",
+        default=None,
+        help="channel to scrape (overrides CHANNEL_ID); stored in output/<id>.db",
+    )
     args = parser.parse_args()
 
-    cfg = load_config()
+    cfg = load_config(channel_id=args.channel_id)
+    db_path = OUTPUT_DIR / f"{args.channel_id}.db" if args.channel_id else DB_PATH
     if args.batch_size is not None:
         cfg.batch_size = normalize_batch_size(args.batch_size)
-    conn = open_db()
+    conn = open_db(db_path)
     budget = Budget(args.max_batches)
 
-    print(f"Scraping channel {cfg.channel_id} into output/messages.db")
+    print(f"Scraping channel {cfg.channel_id} into {db_path}")
     start = time.monotonic()
     try:
         catch_up(conn, cfg, budget, start)
